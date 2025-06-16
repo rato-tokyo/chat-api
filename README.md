@@ -15,13 +15,22 @@ Vercelのv0で作成したサイトからChatGPTとチャットできるAPIサ�
 pip install -r requirements.txt
 ```
 
-2. OpenAI APIキーの設定:
-`main.py`の`api_key`を実際のAPIキーに置き換えてください。
+2. 環境変数の設定:
+ローカル開発時は、`.env`ファイルを作成して以下のように設定します：
+```
+OPENAI_API_KEY=your-api-key-here
+```
 
 3. サーバーの起動:
 ```bash
 python main.py
 ```
+
+## Renderでのデプロイ
+
+1. GitHubリポジトリとRenderを連携
+2. Renderのダッシュボードで以下の環境変数を設定:
+   - `OPENAI_API_KEY`: OpenAIのAPIキー
 
 ## Vercel v0での使用方法
 
@@ -50,12 +59,8 @@ async function getMessages() {
 }
 ```
 
-## デプロイ
-
-このAPIはRenderでデプロイすることを想定しています。GitHubリポジトリと連携することで自動的にデプロイされます。
-
 ## 注意事項
 
 - 本番環境では、CORSの設定を適切なオリジンに制限してください
-- APIキーは環境変数として管理することを推奨します
+- APIキーは必ず環境変数として管理してください
 - メッセージの保存にはJSONファイルを使用していますが、本番環境ではデータベースの使用を検討してください

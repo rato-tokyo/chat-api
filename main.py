@@ -9,7 +9,7 @@ from openai import OpenAI
 app = FastAPI()
 
 # OpenAI APIキーの設定
-client = OpenAI(api_key="your-api-key-here")  # 後で上書きしてください
+client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
 
 # CORSの設定
 app.add_middleware(
