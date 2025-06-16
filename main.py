@@ -27,11 +27,22 @@ class Message(BaseModel):
 
 # メッセージの保存先
 MESSAGES_FILE = "messages.json"
+SYSTEM_PROMPT_FILE = "/etc/secrets/system_prompt.md"
+
+# システムプロンプトの読み込み
+def get_system_prompt() -> str:
+    if os.path.exists(SYSTEM_PROMPT_FILE):
+        with open(SYSTEM_PROMPT_FILE, "r", encoding="utf-8") as f:
+            return f.read().strip()
+    return "あなたは親切なアシスタントです。"
 
 # メッセージの初期化
-if not os.path.exists(MESSAGES_FILE):
+def init_messages():
     with open(MESSAGES_FILE, "w") as f:
         json.dump([], f)
+
+if not os.path.exists(MESSAGES_FILE):
+    init_messages()
 
 @app.post("/chat")
 async def chat(message: Message):
@@ -44,9 +55,13 @@ async def chat(message: Message):
         messages.append({"content": message.content, "role": message.role})
         
         # ChatGPTからの応答を取得
+        system_prompt = get_system_prompt()
         response = client.chat.completions.create(
             model="gpt-3.5-turbo",
-            messages=[{"role": m["role"], "content": m["content"]} for m in messages]
+            messages=[
+                {"role": "system", "content": system_prompt},
+                *[{"role": m["role"], "content": m["content"]} for m in messages]
+            ]
         )
         
         ai_response = {
@@ -72,7 +87,16 @@ async def get_messages():
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
+@app.get("/reset")
+async def reset_messages():
+    try:
+        if os.path.exists(MESSAGES_FILE):
+            os.remove(MESSAGES_FILE)
+        init_messages()
+        return {"message": "メッセージ履歴をリセットしました"}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
 if __name__ == "__main__":
     import uvicorn
-    port = int(os.getenv("PORT", 8000))
-    uvicorn.run(app, host="0.0.0.0", port=port)
+    uvicorn.run(app, host="0.0.0.0", port=8000)

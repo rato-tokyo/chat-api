@@ -7,6 +7,8 @@ Vercelのv0で作成したサイトからChatGPTとチャットできるAPIサ�
 - チャットメッセージの送受信
 - ChatGPTとの対話
 - メッセージ履歴の保存と取得
+- メッセージ履歴のリセット
+- カスタムシステムプロンプトの設定
 
 ## API仕様
 
@@ -47,12 +49,29 @@ Vercelのv0で作成したサイトからChatGPTとチャットできるAPIサ�
      ]
      ```
 
+3. メッセージ履歴のリセット
+   - URL: `https://chat-api-m4h2.onrender.com/reset`
+   - メソッド: GET
+   - レスポンス:
+     ```json
+     {
+       "message": "メッセージ履歴をリセットしました"
+     }
+     ```
+
 ### データ形式
 
 - メッセージはJSONファイルに保存されます
 - 各メッセージは以下の形式で保存:
   - `content`: メッセージの内容（文字列）
   - `role`: 送信者の役割（"user" または "assistant"）
+
+### システムプロンプト
+
+- デフォルトのシステムプロンプト: "あなたは親切なアシスタントです。"
+- カスタムシステムプロンプトを設定する場合:
+  - ファイルパス: `/etc/secrets/system_prompt.md`
+  - ファイルが存在する場合、その内容がシステムプロンプトとして使用されます
 
 ## バックエンド（Render）のセットアップ
 
@@ -81,6 +100,10 @@ python test_api.py
 - メッセージ履歴の取得:
   ```bash
   curl https://chat-api-m4h2.onrender.com/messages
+  ```
+- メッセージ履歴のリセット:
+  ```bash
+  curl https://chat-api-m4h2.onrender.com/reset
   ```
 
 ## 注意事項
